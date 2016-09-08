@@ -18,19 +18,27 @@ namespace app.Services {
 
     constructor(
       private $resource: ng.resource.IResourceService) {
-      this.MovieResource = $resource('/api/movies');
+      this.MovieResource = $resource('/api/movies/:id');
     }
   }
 
   //UserService
   export class UserService {
-    public UserResource;
+    public RegisterResource;
+    public LoginResource;
+
     public register(user) {
-      return this.UserResource.save(user).$promise;
+      return this.RegisterResource.save(user).$promise;
     }
+
+    public login(user) {
+      return this.LoginResource.save(user).$promise;
+    }
+
     constructor(
       private $resource: ng.resource.IResourceService){
-        this.UserResource = $resource('/api/users');
+        this.RegisterResource = $resource('/api/users/register');
+        this.LoginResource = $resource('/api/users/login');
     }
   }
 

@@ -1,10 +1,12 @@
-// modules
+// import modules
 import express = require('express');
+import passport = require('passport');
 let router = express.Router();
 let mongoose = require('mongoose');
 let crypto = require('crypto');
+let jwt = require('express-jwt');
 
-// model
+// Model
 let User = mongoose.model('User', {
   username: String,
 	email: String,
@@ -12,8 +14,8 @@ let User = mongoose.model('User', {
 	salt: String
 });
 
-// POST
-router.post('/users', function(req, res){
+// POST - Register
+router.post('/users/register', function(req, res){
   let salt = crypto.randomBytes(16).toString('hex');
   let passwordHash = crypto.pbkdf2Sync(req.body.password, salt, 1000, 64).toString('hex');
 
@@ -35,4 +37,23 @@ router.post('/users', function(req, res){
   res.send('Success');
 });
 
+// POST - Login
+router.post('/users/login', function(req, res, next) {
+  User.find({username: req.body.username}, function(err, user) {
+    if(user.length < 1) {
+      res.send({message: 'Incorrect username'});
+    }
+    else {
+      let passwordHash = crypto.pbkdf2Sync(req.body.password, user[0].salt, 1000, 64).toString('hex');
+      if(user[0].passwordHash === passwordHash) {
+        res.send({message: 'Correct'});
+      }
+      else {
+        res.send({message: 'Incorrect password'});
+      }
+    }
+  })
+});
+
+// export module
 export = router;

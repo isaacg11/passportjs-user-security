@@ -1,4 +1,5 @@
 namespace app.Controllers {
+
   // HomeController
   export class HomeController {
     public movies;
@@ -57,7 +58,22 @@ namespace app.Controllers {
 
   // LoginController
   export class LoginController {
+    public user;
 
+    public login() {
+      this.userService.login(this.user).then((res) => {
+        if(res.message === 'Correct') {
+          this.$state.go('Home');
+        } else {
+          alert(res.message);
+        }
+      })
+    }
+
+    constructor(
+      private userService: app.Services.UserService,
+      public $state: ng.ui.IStateService) {
+    }
   }
 
   // RegisterController
