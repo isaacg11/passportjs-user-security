@@ -4,9 +4,22 @@ namespace app.Controllers {
   export class HomeController {
     public movies;
     constructor(
-      private movieService: app.Services.MovieService
+      private movieService: app.Services.MovieService,
+      public $state: ng.ui.IStateService
     ) {
       this.movies = this.movieService.getAll();
+
+      let token = window.localStorage['token'];
+  		if(token) {
+  			let payload = JSON.parse(window.atob(token.split('.')[1]));
+        if (payload.exp > Date.now() / 1000) {
+          console.log('logged in');
+        } else {
+          this.$state.go("Login");
+        }
+  		} else {
+        this.$state.go("Login");
+      }
     }
   }
 
@@ -63,6 +76,7 @@ namespace app.Controllers {
     public login() {
       this.userService.login(this.user).then((res) => {
         if(res.message === 'Correct') {
+          window.localStorage['token'] = res.jwt;
           this.$state.go('Home');
         } else {
           alert(res.message);
@@ -73,7 +87,15 @@ namespace app.Controllers {
     constructor(
       private userService: app.Services.UserService,
       public $state: ng.ui.IStateService) {
-    }
+        let token = window.localStorage['token'];
+    		if(token) {
+    			let payload = JSON.parse(window.atob(token.split('.')[1]));
+          if (payload.exp > Date.now() / 1000) {
+            this.$state.go("Home");
+          }
+    		}
+      }
+
   }
 
   // RegisterController

@@ -4,7 +4,7 @@ import passport = require('passport');
 let router = express.Router();
 let mongoose = require('mongoose');
 let crypto = require('crypto');
-let jwt = require('express-jwt');
+let jwt = require("jsonwebtoken");
 
 // Model
 let User = mongoose.model('User', {
@@ -46,7 +46,16 @@ router.post('/users/login', function(req, res, next) {
     else {
       let passwordHash = crypto.pbkdf2Sync(req.body.password, user[0].salt, 1000, 64).toString('hex');
       if(user[0].passwordHash === passwordHash) {
-        res.send({message: 'Correct'});
+        let today:any = new Date();
+        let exp:any = new Date(today);
+        exp.setDate(today.getDate() + 36500);
+        let token = jwt.sign({
+          id: user[0]._id,
+          username: user[0].username,
+          exp: exp.getTime() / 1000
+        }, 'SecretKey');
+
+        res.send({message: 'Correct', jwt: token});
       }
       else {
         res.send({message: 'Incorrect password'});
